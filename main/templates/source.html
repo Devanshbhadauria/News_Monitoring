@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Client Sources</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            animation: fadein 0.5s ease-out;
+        }
+        @keyframes fadein {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .button-group {
+            display: flex;
+            align-items: center;
+        }
+        .button-group form,
+        .button-group a {
+            margin-right: 10px;
+        }
+        .button-group button {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <form method="GET" action="{% url 'source' %}">
+        <input type="text" name="q" placeholder="Search Source">
+        <button type="submit">Search</button><br><br>
+    </form>
+    <div class="button-group">
+        <a href="{% url 'add_or_edit_source' %}">Add Source</a>
+    </div>
+    <h1>Your Sources</h1>
+    {% if sources %}
+        <ul>
+        {% for source in sources %}
+            <li>
+                <strong><a href="{% url 'story' %}?source_id={{source.id}}"> {{ source.name }}</a></strong><br>
+                <br>
+                Number Of Stories - {{source.num_stories}}<br><br>
+                Url : <a href="{{source.url}}">{{source.url}}</a><br><br>
+                <div class="button-group">
+                    <form method="POST" action="{% url 'fetch_stories' source_id=source.id %}">
+                        {% csrf_token %}
+                        <button type="submit">Refresh Stories</button>
+                    </form>
+                    {% if source.created_by == request.user %}
+                        <a href="{% url 'add_or_edit_source'%}?source_id={{source.id}}" class="button">Edit</a>
+                        <a href="delete/{{source.id}}" class="button">Delete</a>
+                    {% endif %}
+                </div>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No sources available for this client.</p>
+    {% endif %}
+</body>
+</html>

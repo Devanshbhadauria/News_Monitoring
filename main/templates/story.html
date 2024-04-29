@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stories</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            animation: fadein 0.5s ease-out;
+        }
+        @keyframes fadein {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <br>
+    <a href="{% url 'add_or_edit_story'%}">Add Story</a>
+    <br>
+    <br>
+    <form method="GET" action="{% url 'story' %}">
+    <input type="text" name="q" placeholder="Search for any story">
+    <button type="submit">Search</button>
+</form>
+    <h1>Stories</h1>
+    {% if new_stories_count %}
+    <p>{{ new_stories_count }} new stories fetched!</p>
+    {% endif %}
+    <ul>
+        {% for story in stories %}
+            <li>
+                <h2>{{ story.title }}</h2>
+                <p>{{ story.body_text }}</p>
+                <h6 style="display: inline;">Source: {{story.source}}</h6>
+                <h6 style="display: inline; margin-left: 10px;">Pub_Date: {{story.pub_date}}</h6>
+                <br>
+                {% for company in story.companies.all %}
+                    <h6>Tagged Companies - {{ company.name }}</h6>
+                {% endfor %}
+                <a href="{{ story.url }}" target="_blank">Read more</a>
+                {% if story.created_by == request.user %}
+                <a href="{% url 'add_or_edit_story' %}?story_id={{story.id}}">Edit</a>
+                <a href="{% url 'delete_story' story.id %}">Delete</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

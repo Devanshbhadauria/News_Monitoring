@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add/Edit Source</title>
+</head>
+<body>
+    {% if form.instance.id %}
+    <h2>Edit Source</h2>
+    {% else %}
+    <h2>Add Source</h2>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+</body>
+</html>

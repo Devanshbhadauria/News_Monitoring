@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Include CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <style>
+        /* Additional custom styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .container h1 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #007bff;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .large-textbox .form-control {
+            padding: 20px; /* Increase padding to make the text box taller */
+        }
+
+        .select2-container--default .select2-selection--multiple {
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 5px;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 3px 5px;
+            margin-right: 5px;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            margin-left: 5px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            color: #f8f9fa;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .add-company-btn {
+            margin-top: 10px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <form method="post" id="story-form">
+        {% csrf_token %}
+        <h1>Add Story</h1>
+        <div class="form-group">
+            <label for="id_title">Title:</label>
+            {{ form.title }}
+        </div>
+        <div class="form-group">
+            <label for="id_body_text">Body text:</label>
+            {% if is_edit_mode %}
+                <div class="large-textbox">
+                    {{ form.body_text }}
+                </div>
+            {% else %}
+                {{ form.body_text }}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="id_url">Url:</label>
+            {{ form.url }}
+        </div>
+        <div class="form-group">
+            <label for="id_source">Source:</label>
+            {{ form.source }}
+        </div>
+        <div class="form-group">
+            <label for="id_pub_date">Pub date:</label>
+            {{ form.pub_date }}
+        </div>
+        <div class="form-group">
+            <label for="id_companies">Companies:</label>
+            {{ form.companies }}
+        </div>
+        <button type="submit" class="btn">ADD</button>
+        <button type="button" class="btn add-company-btn">Add New Company</button>
+    </form>
+</div>
+
+<!-- Include JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: 'Select companies',
+            allowClear: true,
+            // Additional options as needed
+        });
+
+        // Add event listener to the "Add New Company" button
+        $('.add-company-btn').on('click', function() {
+            var companyName = prompt('Enter the name of the new company:');
+            if (companyName) {
+                $.ajax({
+                    url: '{% url "save_new_company" %}',
+                    type: 'POST',
+                    data: {
+                        'company_name': companyName,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        // Assuming the response contains the newly created company ID
+                        var newOption = new Option(companyName, response.company_id, true, true);
+                        $('#id_companies').append(newOption).trigger('change');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                        alert('Failed to save the new company.');
+                    }
+                });
+            }
+        });
+
+        // Prevent form submission when pressing enter in the prompt dialog
+        $(document).on('keydown', function(event) {
+            if (event.keyCode == 13 && $(':focus').hasClass('prompt-input')) {
+                event.preventDefault();
+            }
+        });
+
+        $('#id_companies').on('keydown', function(event) {
+            if (event.keyCode == 13) {
+                event.preventDefault();
+                $('.add-company-btn').trigger('click');
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

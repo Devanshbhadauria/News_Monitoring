@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Delete Story</title>
+</head>
+<body>
+    <h1>Delete Story</h1>
+    <p>Are you sure you want to delete the story "{{ story.title }}"?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit">Delete</button>
+    </form>
+</body>
+</html>
